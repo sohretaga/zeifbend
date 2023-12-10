@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import IsAuthenticated
 
 from .models import CustomUser
-from .serializers import UserSerializer
+from .serializers import UserSerializer, LeaderboardSerializer
 
 @api_view(['POST'])
 def register_user(request):
@@ -49,3 +49,17 @@ def user_logout(request):
             return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+@api_view(['GET'])
+def leaderboard(request):
+    if request.method == 'GET':
+        try:
+            leaders = CustomUser.objects.order_by('-won_game_count')
+            serializer = LeaderboardSerializer(leaders, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except:
+            return Response({'error': 'Not Found Leaders!'}, status=status.HTTP_404_NOT_FOUND)
+    
+    return Response({'error': 'Wrong Method!'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

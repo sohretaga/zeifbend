@@ -17,15 +17,15 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = CustomUser(
             username=validated_data['username'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
         )
         user.set_password(validated_data['password'])
 
         avatars_path = os.path.join(settings.STATIC_ROOT, 'avatars')
-        print(avatars_path)
         if os.path.exists(avatars_path):
             avatars = [f for f in os.listdir(avatars_path) if os.path.isfile(os.path.join(avatars_path, f))]
-            print(avatars)
             if avatars:
                 avatar_file_name = random.choice(avatars)
                 avatar_file_path = os.path.join(avatars_path, avatar_file_name)
@@ -34,3 +34,8 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+class LeaderboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'won_game_count']
